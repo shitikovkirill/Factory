@@ -1,6 +1,5 @@
 import uuid
 
-
 class Project:
 	__name = None
 	__start_date = None
