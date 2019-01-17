@@ -83,9 +83,8 @@ def handle_error_500(error):
 
 def init_error_handlers(app):
     if app:
-        app.error_handler_spec[None] = {}
-        app.error_handler_spec[None][404] = handle_error_404
-        app.error_handler_spec[None][500] = handle_error_500
+        app.errorhandler(404)(handle_error_404)
+        app.errorhandler(500)(handle_error_500)
 
 
 def list_routes(app):
