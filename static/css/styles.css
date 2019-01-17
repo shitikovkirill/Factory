@@ -41,3 +41,9 @@
 .onePadding {
     padding-top:1em;
 }
+
+.jumbotron {
+    background-color:#FFF;
+    border: 1px solid #DD4814;
+    border-radius: 1.0em !important;
+}

@@ -29,13 +29,9 @@ function saveProject() {
     $.post("/api/project", {name: projectName, description: projectDescription}, function(response){
         console.log(response.id);
 
-        $(success_alert).find("#success_message").text("Project successfuly created with ID:" + response.id);
+        $(success_alert).find("#success_message").text("Project successfully created with ID:" + response.id);
         $(success_alert).removeClass("hidden");
-        //$(success_alert).alert();
     });
-
-
-
 }
 
 
