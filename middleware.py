@@ -6,11 +6,14 @@ from flask import url_for
 
 from data_provider_service import DataProviderService
 
-DATA_PROVIDER = DataProviderService(15)
+db_engine = 'postgres://postgres@db/postgres'
 
 
-def candidate(serialize = True):
-    candidates = DATA_PROVIDER.get_candidates()
+DATA_PROVIDER = DataProviderService(db_engine)
+
+
+def candidate(serialize=True):
+    candidates = DATA_PROVIDER.get_candidate(serialize=serialize)
     if serialize:
         return jsonify({"candidates": candidates, "total": len(candidates)})
     else:
@@ -18,7 +21,7 @@ def candidate(serialize = True):
 
 
 def candidate_by_id(id):
-    current_candidate = DATA_PROVIDER.get_candidate(id)
+    current_candidate = DATA_PROVIDER.get_candidate(id, serialize=True)
     if current_candidate:
         return jsonify({"candidate": current_candidate})
     else:
@@ -29,6 +32,14 @@ def candidate_by_id(id):
         abort(404)
 
 
+def initialize_database():
+    DATA_PROVIDER.init_database()
+
+
+def fill_database():
+    DATA_PROVIDER.fill_database()
+
+
 def delete_candidate(id):
     if DATA_PROVIDER.delete_candidate(id):
         return make_response('', 200)
@@ -36,12 +47,18 @@ def delete_candidate(id):
         return abort(404)
 
 
-def candidate_update_name(id, new_name):
-    nr_of_updated_items = DATA_PROVIDER.update_name(id, new_name)
-    if nr_of_updated_items == 0:
+def update_candidate(id):
+    new_candidate = {
+        "first_name":request.form["first_name"],
+        "last_name":request.form["last_name"],
+        "email": request.form["email"],
+        "phone": request.form["phone"]
+    }
+    updated_candidate = DATA_PROVIDER.update_candidate(id, new_candidate)
+    if not updated_candidate:
         abort(404)
     else:
-        return jsonify({"total_updated": nr_of_updated_items})
+        return jsonify({"candidate": updated_candidate})
 
 
 def random_candidates(nr_of_items):
@@ -68,10 +85,21 @@ def add_project():
 def add_candidate():
     first_name = request.form["first_name"]
     last_name = request.form["last_name"]
+    email = request.form["email"]
+    phone = request.form["phone"]
+    birthday = request.form["birthday"]
 
-    new_candidate_id = DATA_PROVIDER.add_candidate(first_name, last_name)
+    new_candidate_id = DATA_PROVIDER.add_candidate(first_name=first_name,
+                                                   last_name=last_name,
+                                                   email=email,
+                                                   birthday=birthday,
+                                                   phone=phone)
 
     return jsonify({
         "id": new_candidate_id,
         "url": url_for("candidate_by_id", id=new_candidate_id)
     })
+
+
+def build_message(key, message):
+    return {key:message}
